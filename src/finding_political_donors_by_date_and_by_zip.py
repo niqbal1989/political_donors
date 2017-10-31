@@ -2,6 +2,8 @@ import sys
 import math
 from datetime import datetime
 import operator
+if sys.version_info[0]<3:
+    raise Exception("Python 3 or a more recent version is required")
 inFile = sys.argv[1]
 outFile1 = sys.argv[2]
 outFile2 = sys.argv[3]
@@ -24,10 +26,8 @@ def manipulate_files(inf, outf1, outf2):
                     else:
                         zipcode_dict[zipkey] = [float(relevant_list[3])]
                     median_zip = int(round2(find_median(zipcode_dict[zipkey])))
-                    print(median_zip)
                     num_zip = len(zipcode_dict[zipkey])
                     sum_zip = int(round2(sum(zipcode_dict[zipkey])))
-                    print(sum_zip)
                     median_zip_list.extend([relevant_list[0],relevant_list[1][0:5],str(median_zip),str(num_zip),str(sum_zip)])
                     zip_entry = '|'.join(median_zip_list)
                     zip_entry = zip_entry + '\n'
