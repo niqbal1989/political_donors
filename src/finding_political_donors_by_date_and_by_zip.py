@@ -1,5 +1,7 @@
 import sys
 import math
+from datetime import datetime
+import operator
 inFile = sys.argv[1]
 outFile1 = sys.argv[2]
 outFile2 = sys.argv[3]
@@ -21,10 +23,12 @@ def manipulate_files(inf, outf1, outf2):
                         zipcode_dict[zipkey].append(float(relevant_list[3]))
                     else:
                         zipcode_dict[zipkey] = [float(relevant_list[3])]
-                    median_zip = round2(find_median(zipcode_dict[zipkey]))
-                    sum_zip = round2(sum(zipcode_dict[zipkey]))
+                    median_zip = int(round2(find_median(zipcode_dict[zipkey])))
+                    print(median_zip)
                     num_zip = len(zipcode_dict[zipkey])
-                    median_zip_list.extend([relevant_list[0],relevant_list[1],str(median_zip),str(num_zip),str(sum_zip)])
+                    sum_zip = int(round2(sum(zipcode_dict[zipkey])))
+                    print(sum_zip)
+                    median_zip_list.extend([relevant_list[0],relevant_list[1][0:5],str(median_zip),str(num_zip),str(sum_zip)])
                     zip_entry = '|'.join(median_zip_list)
                     zip_entry = zip_entry + '\n'
                     with open(outf1,'a') as zip_output:
@@ -36,14 +40,19 @@ def manipulate_files(inf, outf1, outf2):
                     else:
                         date_dict[datekey] = [float(relevant_list[3])]
         id_date = date_dict.keys()
-        id_date_data = date_dict.values()
+        id_date_data = list(date_dict.values())
         for idx, val in enumerate(id_date):
             id_date_split = val.split('|')
-            median_date = round2(find_median(id_date_data[idx]))
+            id_date_split[1]=datetime.strptime(id_date_split[1],'%m%d%Y')
+            median_date = int(round2(find_median(id_date_data[idx])))
             num_date = len(id_date_data[idx])
-            sum_date = round2(sum(id_date_data[idx]))
+            sum_date = int(round2(sum(id_date_data[idx])))
             id_date_split.extend([str(median_date),str(num_date),str(sum_date)])
-            date_entry = '|'.join(id_date_split)
+            date_list_tbw.append(id_date_split)
+        date_list_tbw = sorted(date_list_tbw, key = operator.itemgetter(0,1))
+        for idx2 in range(len(date_list_tbw)):
+            date_list_tbw[idx2][1] = datetime.strftime(date_list_tbw[idx2][1], '%m%d%Y')
+            date_entry = '|'.join(date_list_tbw[idx2])
             date_entry = date_entry + '\n'
             with open(outf2, 'a') as date_output:
                 date_output.write(date_entry)
@@ -57,10 +66,10 @@ def find_median(lst):
     lst.sort()
     length = len(lst)
     if length % 2 == 0:
-        num = length/2
+        num = int(length/2)
         median = (lst[num-1]+lst[num])/2
     else:
-        median=lst[int(math.ceil(length/2))]
+        median=lst[(int(math.ceil(length/2)))-1]
     return median
 
 def round2(num):
