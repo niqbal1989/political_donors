@@ -1,4 +1,4 @@
-# Table of Contents
+# Insight Data Engineering Challenge
 1. [Introduction](README.md#introduction)
 2. [Challenge summary](README.md#challenge-summary)
 3. [Details of challenge](README.md#details-of-challenge)
@@ -12,66 +12,32 @@
 11. [FAQ](README.md#faq)
 
 # Introduction
-You’re a data engineer working for political consultants and you’ve been asked to help identify possible donors for a variety of upcoming election campaigns. 
+As an aspiring data engineer, I am devoloping part of a data pipeline that takes information as data about political donors and from where and when they will make those contributions so we can better assess on what date and in which places is it best to solicit donations. So the program will stream in data and calculate the current median dollar amount of a unique combination of a recipient and the zipcode. Additionally, the program is also meant to compute median data for a unique combination of recipient and date. 
 
-The Federal Election Commission regularly publishes campaign contributions and while you don’t want to pull specific donors from those files — because using that information for fundraising or commercial purposes is illegal — you want to identify the areas (zip codes) that may be fertile ground for soliciting future donations for similar candidates. 
+# Prerequisites
 
-Because those donations may come from specific events (e.g., high-dollar fundraising dinners) but aren’t marked as such in the data, you also want to identify which time periods are particularly lucrative so that an analyst might later correlate them to specific fundraising events.
-
-# Challenge summary
-
-For this challenge, we're asking you to take an input file that lists campaign contributions by individual donors and distill it into two output files:
-
-1. `medianvals_by_zip.txt`: contains a calculated running median, total dollar amount and total number of contributions by recipient and zip code
-
-2. `medianvals_by_date.txt`: has the calculated median, total dollar amount and total number of contributions by recipient and date.
-
-As part of the team working on the project, another developer has been placed in charge of building the graphical user interface, which consists of two dashboards. The first would show the zip codes that are particularly generous to a recipient over time while the second would display the days that were lucrative for each recipient. 
-
-Your role on the project is to work on the data pipeline that will hand off the information to the front-end. As the backend data engineer, you do **not** need to display the data or work on the dashboard but you do need to provide the information.
-
-You can assume there is another process that takes what is written to both files and sends it to the front-end. If we were building this pipeline in real life, we’d probably have another mechanism to send the output to the GUI rather than writing to a file. However for the purposes of grading this challenge, we just want you to write the output to files.
+In order to evaluate and or work on the challnge, you can download the repository. It is necessary for your computer to be running a linux or unix operating system. You schould also have python installed. There are no other dependies needed to complete the challenge. You just need some of the  built-in packages such as math and sys. 
 
 
+# Detailed explanation of my challenge solution
 
-# Details of challenge
+Using a single read in of the input file, I computed both relevant sets of information. There is one big function that computes both the real-time median data for zipcodes for political donnors and the median data based on date once the streaming has stopped. It may seems counterintuitive to have both actions in a single function, but the date data cannot be computed until the file is streaming in and, thus, likely after all the median data has been computer.
 
-You’re given one input file, `itcont.txt`. Each line of the input file contains information about a campaign contribution that was made on a particular date from a donor to a political campaign, committee or other similar entity. Out of the many fields listed on the pipe-delimited line, you’re primarily interested in the zip code associated with the donor, amount contributed, date of the transaction and ID of the recipient.
+There are also several helper functions that are called in the bigger function to meet the criterion for the data standards. For example, there are helper functions that test for the validity of both date and zipcode. A data point for zipcode is only considered if it has a valid zipcode and the same goes for a data point for date.
 
-Your code should process each line of the input file as if that record was sequentially streaming into your program. For each input file line, calculate the running median of contributions, total number of transactions and total amount of contributions streaming in so far for that recipient and zip code. The calculated fields should then be formatted into a pipe-delimited line and written to an output file named `medianvals_by_zip.txt` in the same order as the input line appeared in the input file. 
+The program starts by reading in a line of the data and then that entry is dissected to provide the relavant information needed for the computations. Then it will compute the median data based on zipcode, in real time. As, the data is streaming in and being computed for median, another data structure within the for loop is accumulating and organizing for another set of computations. 
 
-Your program also should write to a second output file named `medianvals_by_date.txt`. Each line of this second output file should list every unique combination of date and recipient from the input file and then the calculated total contributions and median contribution for that combination of date and recipient. 
+The zipcode data is written out. Then the program will exit out of the for loop, so that the recipient information and the date can be ordered. Then another for loop is initiated to compute the date data, and finally we come to a final for loop in which the data is written out line by line to a file.
 
-The fields on each pipe-delimited line of `medianvals_by_date.txt` should be date, recipient, total number of transactions, total amount of contributions and median contribution. Unlike the first output file, this second output file should have lines sorted alphabetical by recipient and then chronologically by date.
+# Tests
 
-Also, unlike the first output file, every line in the `medianvals_by_date.txt` file should be represented by a unique combination of day and recipient -- there should be no duplicates. 
+There are unittests provided in the src code folder for unittesting the helper functions written in the python for the the script, `finding_political_donors_by_date_and_by_zip.py`.
 
+Additionally, there is a test script in the tests folder that can be run to test data provided by insight. I have provided one other tests that is also in the tests folder and can also be run using the provided `run_tests.sh`. The test that I hve a provided tests more rigorously date data 
 
-## Input file
+# Implementation
 
-The Federal Election Commission provides data files stretching back years and is [regularly updated](http://classic.fec.gov/finance/disclosure/ftpdet.shtml)
-
-For the purposes of this challenge, we’re interested in individual contributions. While you're welcome to run your program using the data files found at the FEC's website, you should not assume that we'll be testing your program on any of those data files or that the lines will be in the same order as what can be found in those files. Our test data files, however, will conform to the data dictionary [as described by the FEC](http://classic.fec.gov/finance/disclosure/metadata/DataDictionaryContributionsbyIndividuals.shtml).
-
-Also, while there are many fields in the file that may be interesting, below are the ones that you’ll need to complete this challenge:
-
-* `CMTE_ID`: identifies the flier, which for our purposes is the recipient of this contribution
-* `ZIP_CODE`:  zip code of the contributor (we only want the first five digits/characters)
-* `TRANSACTION_DT`: date of the transaction
-* `TRANSACTION_AMT`: amount of the transaction
-* `OTHER_ID`: a field that denotes whether contribution came from a person or an entity 
-
-### Input file considerations
-
-Here are some considerations to keep in mind:
-1. Because we are only interested in individual contributions, we only want records that have the field, `OTHER_ID`, set to empty. If the `OTHER_ID` field contains any other value, ignore the entire record and don't include it in any calculation
-2. If `TRANSACTION_DT` is an invalid date (e.g., empty, malformed), you should still take the record into consideration when outputting the results of `medianvals_by_zip.txt` but completely ignore the record when calculating values for `medianvals_by_date.txt`
-3. While the data dictionary has the `ZIP_CODE` occupying nine characters, for the purposes of the challenge, we only consider the first five characters of the field as the zip code
-4. If `ZIP_CODE` is an invalid zipcode (i.e., empty, fewer than five digits), you should still take the record into consideration when outputting the results of `medianvals_by_date.txt` but completely ignore the record when calculating values for `medianvals_by_zip.txt`
-5. If any lines in the input file contains empty cells in the `CMTE_ID` or `TRANSACTION_AMT` fields, you should ignore and skip the record and not take it into consideration when making any calculations for the output files
-6. Except for the considerations noted above with respect to `CMTE_ID`, `ZIP_CODE`, `TRANSACTION_DT`, `TRANSACTION_AMT`, `OTHER_ID`, data in any of the other fields (whether the data is valid, malformed, or empty) should not affect your processing. That is, as long as the four previously noted considerations apply, you should process the record as if it was a valid, newly arriving transaction. (For instance, campaigns sometimes retransmit transactions as amendments, however, for the purposes of this challenge, you can ignore that distinction and treat all of the lines as if they were new)
-7. For the purposes of this challenge, you can assume the input file follows the data dictionary noted by the FEC for the 2015-current election years
-8. The transactions noted in the input file are not in any particular order, and in fact, can be out of order chronologically
+In order to implement the program, download the repo and run the bash script that sits in the overarching directory of the repo and the program will run, taking an input from the input folder and creatin two files in th
 
 ## Output files
 
