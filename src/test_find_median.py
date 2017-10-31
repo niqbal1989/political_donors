@@ -1,0 +1,31 @@
+import unittest
+import finding_political_donors_by_date_and_by_zip
+
+class TestFindMedian(unittest.TestCase):
+    """Test class for function finding_political_donors_by_date_and_by_zip.find_median"""
+    def test_find_median_single_entry(self):
+        """Test find median with a single entry"""
+        actual = finding_political_donors_by_date_and_by_zip.find_median([1])
+        expected = 1
+        self.assertEqual(expected, actual)
+
+    def test_find_median_two_entries(self):
+        """Test find median with two entries"""
+        actual = finding_political_donors_by_date_and_by_zip.find_median([3, 4])
+        expected = 3.5
+        self.assertEqual(expected, actual)
+
+    def test_find_median_first_set_odd(self):
+        """Test find median when there are odd number of and more entries than can be used by the function"""
+        actual = finding_political_donors_by_date_and_by_zip.find_median([1, 3, 5])
+        expected = 3
+        self.assertEqual(expected, actual)
+
+    def test_find_median_first_set_even(self):
+        """Test find median when there areeven number of and more entries than can be used by the function"""
+        actual = finding_political_donors_by_date_and_by_zip.find_median([1, 3, 5, 7])
+        expected = 4
+        self.assertEqual(expected, actual)
+
+if __name__ == '__main__':
+    unittest.main(exit=False)

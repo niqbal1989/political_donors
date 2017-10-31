@@ -1,0 +1,55 @@
+import unittest
+import finding_political_donors_by_date_and_by_zip
+
+class TestIsDateValid(unittest.TestCase):
+    """Test class for function finding_political_donors_by_date_and_by_zip.is_date_valid"""
+    def test_below_year_range(self):
+        """Test to see if date with a year from a time when there was no FEC data              will be valid"""
+        actual = finding_political_donors_by_date_and_by_zip.is_date_valid('01281859')
+        expected = False
+        self.assertEqual(expected, actual)
+
+    def test_no_date_yet(self):
+        """Test to see if date after current day is valid"""
+        actual = finding_political_donors_by_date_and_by_zip.is_date_valid('12082017')
+        expected = False
+        self.assertEqual(expected, actual)
+
+    def test_month_out_of_range(self):
+        """Test to see if a month outside of 1 through 12 will be valid"""
+        actual = finding_political_donors_by_date_and_by_zip.is_date_valid('13282016')
+        expected = False
+        self.assertEqual(expected, actual)
+
+    def test_day_out_of_range(self):
+        """Test to see if a day out of the range for a particular months will be valid"""
+        actual = finding_political_donors_by_date_and_by_zip.is_date_valid('01322015')
+        expected = False
+        self.assertEqual(expected, actual)
+
+    def test_too_few_characters_for_date(self):
+        """Test to see if a malformed date with too few characters will be valid"""
+        actual = finding_political_donors_by_date_and_by_zip.is_date_valid('0128201')
+        expected = False
+        self.assertEqual(expected, actual)
+        
+    def test_too_many_character_for_date(self):
+        """Test to see if malformed date with too many characters will be valid"""
+        actual = finding_political_donors_by_date_and_by_zip.is_date_valid('012820165')
+        expected = False
+        self.assertEqual(expected, actual)
+        
+    def test_random_string_of_numbers(self):
+        """Test to see if a random combination of numbers will be valid"""
+        actual = finding_political_donors_by_date_and_by_zip.is_date_valid('63930909')
+        expected = False
+        self.assertEqual(expected, actual)
+        
+    def test_valid_date_likely_to_occur(self):
+        """Test to see if a date that occurs in the test data will be valid"""
+        actual = finding_political_donors_by_date_and_by_zip.is_date_valid('01282017')
+        expected = False
+        self.assertEqual(expected, actual)
+
+if __name__ == '__main__':
+    unittest.main(exit=False)
